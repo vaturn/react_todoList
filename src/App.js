@@ -3,24 +3,25 @@ import {useState} from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
+
+import { getFirestore, collection, addDoc, setDoc, doc } from "firebase/firestore";
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
- 
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
- apiKey: "AIzaSyAPjYrRKj11e85Yx1ZaqFiZ6STbH-ciUT8",
- authDomain: "todo-list-app-98806.firebaseapp.com",
- projectId: "todo-list-app-98806",
- storageBucket: "todo-list-app-98806.appspot.com",
- messagingSenderId: "886143434487",
- appId: "1:886143434487:web:b5227108bd4261291f9df2",
- measurementId: "G-NGJKZTHLQN"
+  apiKey: "AIzaSyAQmOM_BbX8QIDnxuS5dUTuRfJkQ28Wnr8",
+  authDomain: "todo-list-e15e6.firebaseapp.com",
+  projectId: "todo-list-e15e6",
+  storageBucket: "todo-list-e15e6.appspot.com",
+  messagingSenderId: "1056973131778",
+  appId: "1:1056973131778:web:b5d5fb6d6827fa1304571b",
+  measurementId: "G-79194YHS2D"
 };
 
 // Initialize Firebase
@@ -88,10 +89,14 @@ function App() {
       id: docRef.id,
       todoItemContent: newTodoItem,
       isFinished: false,
-    }])
-  }
+    }]);
+    console.log(docRef.id);
+  };
 
-  const onTodoItemClick = (clickedTodoItem) => {
+  const onTodoItemClick = async (clickedTodoItem) => {
+    const todoItemRef = doc(db, "todoItem", clickedTodoItem.id);
+    await setDoc(todoItemRef, {isFinished: !clickedTodoItem.isFinished}, {merge: true});
+
     setTodoItemList(todoItemList.map((todoItem) => {
       if(clickedTodoItem.id === todoItem.id){
         return {

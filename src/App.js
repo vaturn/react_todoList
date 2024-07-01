@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
 
-import { getFirestore, collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc } from "firebase/firestore";
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -111,7 +111,9 @@ function App() {
     }));
   };
 
-  const onRemoveClick = (removedTodoItem) => {
+  const onRemoveClick = async (removedTodoItem) => {
+    const todoItemTef = doc(db, "todoItem", removedTodoItem.id);
+    await deleteDoc(todoItemTef);
     setTodoItemList(todoItemList.filter((todoItem) => {
       return todoItem.id !== removedTodoItem.id;
     }));

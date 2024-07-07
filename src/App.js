@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 
 
 import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, getDocs, query, orderBy } from "firebase/firestore";
+import {GoogleAuthProvider,getAuth,signInWithRedirect,onAuthStateChanged,signOut,} from "firebase/auth"
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -31,6 +32,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
+const provider = new GoogleAuthProvider();
+const auth = getAuth(app);
 
 const db = getFirestore(app);
 
@@ -79,13 +82,25 @@ const TodoItemList = (props) => {
 };
 
 const TodoListAppBar = (props) => {
+  const loginWhithGoogleButton = (
+    <Button color="inherit" onClick={() => {
+      signInWithRedirect(auth, provider);
+    }}>Login with Google</Button>
+  );
+  const logoutButton = (
+    <Button color="inherit" onClick={() => {
+      signOut(auth);
+    }}>Log out</Button>
+  );
+  console.log(props.currentUser);
+  const button = props.currentUser === null ? loginWhithGoogleButton : logoutButton;
   return (
     <AppBar position='static'>
       <Toolbar>
         <Typography variant='h6' component="div" sx={{flexGrow: 1}}>
           Todo List App
         </Typography>
-        <Button color='inherit'>Log In</Button>
+        {button}
       </Toolbar>
     </AppBar>
   );
@@ -93,8 +108,17 @@ const TodoListAppBar = (props) => {
 
 
 function App() {
+  const [currentUser, setCurrentUser] = useState(null);
   const [todoItemList, setTodoItemList] = useState([]);
 
+  onAuthStateChanged(auth, (user) => {
+    if(user){
+      setCurrentUser(user.uid);
+    }
+    else{
+      setCurrentUser(null);
+    }
+  });
 
   const syncTodoItemListStateWithFirestore = () => {
     const q = query(collection(db, "todoItem"), orderBy("createdTime", "desc"));
@@ -143,7 +167,7 @@ function App() {
 
   return (
     <div className="App">
-      <TodoListAppBar />
+      <TodoListAppBar currentUser={currentUser}/>
       <TodoItemInputField onSubmit={onSubmit} />
         <TodoItemList 
           todoItemList={todoItemList}
